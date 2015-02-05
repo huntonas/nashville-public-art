@@ -1,0 +1,19 @@
+{
+  "name": "backbonejs",
+  "version": "0.0.0",
+  "description": "Public art Location Nashville",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:huntonas/publicartlocation.git"
+  },
+  "author": "Andrew Hunton",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.11.2",
+    "compression": "^1.4.0"
+  }
+}
