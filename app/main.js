@@ -32,7 +32,7 @@
 
 	var publicArtCollection = new PublicArtCollection();
 	publicArtCollection.fetch();
-console.log(publicArtCollection.fetch());
+	console.log(publicArtCollection.fetch());
 
 	var PeopleCollection = Backbone.Collection.extend({
 		model: Person
@@ -57,6 +57,45 @@ console.log(publicArtCollection.fetch());
 
 
 	//Views
+
+	var ArtPieceMap = Backbone.View.extend({
+		tagName: 'div',
+		className: 'map',
+		events: {},
+		initialize: function() {
+			template = _.template($('#googleMap').html());
+		},
+		activate : function() {
+			var mapOptions = {
+	              zoom: 16,
+	              center: new google.maps.LatLng(36.159480, -86.792112),
+	              mapTypeId: google.maps.MapTypeId.ROADMAP
+	            };
+	    var domElement = this.$('#map-canvas');
+	    this.map = new google.maps.Map(domElement.get(0),mapOptions);
+	    /*
+	    _.each(this.collection, function(artPiece) {
+
+				var latLng = new google.maps.LatLng(artPiece.latitude, artPiece.longitude);
+				var marker = new google.maps.Marker({
+					position : latLng,
+					map: this.[0]
+				});
+
+			}, map);
+			*/
+			return this;
+		},
+		render: function() {
+
+			this.$el.html(this.template(this));
+			this.activate();
+			return this;
+
+		}
+
+	});
+
 	var PersonView = Backbone.View.extend({
 		tagName: 'li',
 		initialize: function() {
@@ -125,5 +164,6 @@ console.log(publicArtCollection.fetch());
 
 	var addPersonView = new AddPersonView({collection: peopleCollection});
 	var peopleView = new PeopleView({collection: peopleCollection});
-	$(document.body).append(peopleView.render().el);
+	var artPieceView = new ArtPieceMap({collection: PublicArtCollection});
+	$(document.body).append(artPieceView.render().el);
 })();
