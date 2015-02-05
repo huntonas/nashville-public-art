@@ -1,10 +1,11 @@
 {
   "name": "backbonejs",
-  "version": "0.0.0",
+  "version": "0.0.0-2",
   "description": "Public art Location Nashville",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "server.js"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,9 @@
     "uglify": "^0.1.1",
     "watch": "^0.13.0",
     "grunt-contrib-watch": "^0.6.1"
+  },
+  "subdomain": "nashville-public-art",
+  "engines": {
+    "node": "0.10.x"
   }
 }
