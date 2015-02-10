@@ -4,15 +4,15 @@ APP = {};
 
 APP.ArtPiece = Backbone.Model.extend({
     defaults: {
-        first_name: null,
-        title: null,
-        location: null,
-        description: null,
-        last_name: null,
+        first_name: 'First Name not provided',
+        title: 'Title not provided',
+        location: 'Location not provided',
+        description: 'Description not provided',
+        last_name: 'Last Name not provided',
         longitude: null,
         latitude: null,
-        type: null,
-        medium: null
+        type: 'Type not provided',
+        medium: 'Medium not provided'
     }
 });
 
@@ -20,7 +20,6 @@ APP.ArtPieces = Backbone.Collection.extend({
     model: APP.ArtPiece,
     url: 'https://data.nashville.gov/resource/dqkw-tj5j.json'
 });
-
 
 APP.artPieces = new APP.ArtPieces();
 
@@ -42,8 +41,9 @@ APP.MapView = Backbone.View.extend({
         this.map = new google.maps.Map(this.el, this.model.toJSON());
     },
     render: function () {
+        var infoWindows = [];
         this.collection.each(function (artPiece) {
-            console.log(artPiece.get('title'));
+            
             var marker = new google.maps.Marker({
                 map: this.map,
                 position: new google.maps.LatLng(
@@ -52,8 +52,28 @@ APP.MapView = Backbone.View.extend({
                 ),
                 title: artPiece.get('title')
             });
+
+            var info = '<div class="info-window">' +
+                       '<p class="artist"><strong>Artist: </strong>' +  artPiece.get('first_name') + ' '+ artPiece.get('last_name') + '</p>' +
+                        '<p class="type"><strong>Type: </strong>' + artPiece.get('type') + '</p>' +
+                        '<p class="medium"><strong>Medium: </strong>' + artPiece.get('medium') + '</p>' +
+                        '<p class="description"><strong>Description: </strong>' + artPiece.get('description') + '</p>' +
+                        '</div>';
+
+            var infowindow = new google.maps.InfoWindow({
+                content: info
+            });
+
+            infoWindows[infoWindows.length] = infowindow;
+
+            google.maps.event.addListener(marker, 'click', function() {
+                this.map.setZoom(14);
+                for(i = 0;i<infoWindows.length; i++) { infoWindows[i].close(); };
+                infowindow.open(this.map,marker);
+            });
         }, this);
         $('#map').replaceWith(this.el);
+        google.maps.event.addDomListener(window, 'load', initialize);
     }
 });
 
