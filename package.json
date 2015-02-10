@@ -1,6 +1,6 @@
 {
   "name": "backbonejs",
-  "version": "0.0.0-2",
+  "version": "0.0.0-3",
   "description": "Public art Location Nashville",
   "main": "app.js",
   "scripts": {
@@ -24,7 +24,9 @@
     "grunt-contrib-uglify": "~0.5.0",
     "uglify": "^0.1.1",
     "watch": "^0.13.0",
-    "grunt-contrib-watch": "^0.6.1"
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-cssmin": "^0.12.1"
   },
   "subdomain": "nashville-public-art",
   "engines": {

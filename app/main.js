@@ -1,169 +1,65 @@
 (function() {
 
+APP = {};
 
-	//Models
-	var Person = Backbone.Model.extend({
-		defaults: {
-			name: 'Guest User',
-			age: 23,
-			occupation: 'worker'
-		}
-	});
+APP.ArtPiece = Backbone.Model.extend({
+    defaults: {
+        first_name: null,
+        title: null,
+        location: null,
+        description: null,
+        last_name: null,
+        longitude: null,
+        latitude: null,
+        type: null,
+        medium: null
+    }
+});
 
-	var PublicArtPiece = Backbone.Model.extend({
-		defaults: {
-			first_name: null,
-			title: null,
-			location: null,
-			description: null,
-			last_name: null,
-			longitude: null,
-			latitude: null,
-			type: null,
-			medium: null
-		}
-	});
-
-	//Collections
-	var PublicArtCollection = Backbone.Collection.extend({
-		model: PublicArtPiece,
-		url: 'https://data.nashville.gov/resource/dqkw-tj5j.json'
-	});
-
-	var publicArtCollection = new PublicArtCollection();
-	publicArtCollection.fetch();
-	console.log(publicArtCollection.fetch());
-
-	var PeopleCollection = Backbone.Collection.extend({
-		model: Person
-	});
-
-	var peopleCollection = new PeopleCollection([
-	  {
-	      name: 'Mohit Jain',
-	      age: 26
-	  },
-	  {
-	      name: 'Taroon Tyagi',
-	      age: 25,
-	      occupation: 'web designer'
-	  },
-	  {
-	      name: 'Rahul Narang',
-	      age: 26,
-	      occupation: 'Java Developer'
-	  }
-	]);
+APP.ArtPieces = Backbone.Collection.extend({
+    model: APP.ArtPiece,
+    url: 'https://data.nashville.gov/resource/dqkw-tj5j.json'
+});
 
 
-	//Views
+APP.artPieces = new APP.ArtPieces();
 
-	var ArtPieceMap = Backbone.View.extend({
-		tagName: 'div',
-		className: 'map',
-		events: {},
-		initialize: function() {
-			template = _.template($('#googleMap').html());
-		},
-		activate : function() {
-			var mapOptions = {
-	              zoom: 16,
-	              center: new google.maps.LatLng(36.159480, -86.792112),
-	              mapTypeId: google.maps.MapTypeId.ROADMAP
-	            };
-	    var domElement = this.$('#map-canvas');
-	    this.map = new google.maps.Map(domElement.get(0),mapOptions);
-	    /*
-	    _.each(this.collection, function(artPiece) {
+APP.Map = Backbone.Model.extend({
+    defaults: {
+        center: new google.maps.LatLng(36.159480, -86.792112),
+        zoom: 12,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+});
 
-				var latLng = new google.maps.LatLng(artPiece.latitude, artPiece.longitude);
-				var marker = new google.maps.Marker({
-					position : latLng,
-					map: this.[0]
-				});
+APP.map = new APP.Map();
 
-			}, map);
-			*/
-			return this;
-		},
-		render: function() {
+APP.MapView = Backbone.View.extend({
+    el: '#map',
+    initialize: function () {
+        this.collection.fetch({ reset: true });
+        this.listenTo(this.collection, 'reset', this.render);
+        this.map = new google.maps.Map(this.el, this.model.toJSON());
+    },
+    render: function () {
+        this.collection.each(function (artPiece) {
+            console.log(artPiece.get('title'));
+            var marker = new google.maps.Marker({
+                map: this.map,
+                position: new google.maps.LatLng(
+                    artPiece.get('latitude'),
+                    artPiece.get('longitude')
+                ),
+                title: artPiece.get('title')
+            });
+        }, this);
+        $('#map').replaceWith(this.el);
+    }
+});
 
-			this.$el.html(this.template(this));
-			this.activate();
-			return this;
+APP.mapView = new APP.MapView({
+    model: APP.map,
+    collection: APP.artPieces
+});
 
-		}
-
-	});
-
-	var PersonView = Backbone.View.extend({
-		tagName: 'li',
-		initialize: function() {
-			template = _.template($('#personTemplate').html());
-			this.model.on('change', this.render, this);
-			this.model.on('destroy', this.remove, this);
-		},
-
-		template: _.template($('#personTemplate').html()),
-
-		events: {
-			'click .edit' : 'editPerson',
-			'click .delete' : 'destroyPerson'
-		},
-		editPerson: function() {
-			var newName = prompt("Please enter the new name", this.model.get('name'));
-			if(!newName) return;
-			this.model.set('name', newName);
-		},
-		destroyPerson: function() {
-			this.model.destroy();
-		},
-		remove: function() {
-			this.$el.remove();
-		},
-		render: function() {
-			this.$el.html(this.template(this.model.toJSON()));
-			return this;
-		}
-	});
-
-	var PeopleView = Backbone.View.extend({
-		tagName: 'ul',
-
-		initialize: function() {
-			this.collection.on('add', this.addOne, this);
-		},
-
-		render: function() {
-			this.collection.each(function(person) {
-				console.log(person.toJSON());
-				var personView = new PersonView({model: person});
-				this.$el.append(personView.render().el);
-			}, this);
-			return this;
-		},
-		addOne: function(person) {
-			var personView = new PersonView ({model: person});
-			this.$el.append(personView.render().el);
-		}
-	});
-
-	var AddPersonView = Backbone.View.extend({
-		el: '#addPerson',
-
-		events: {
-			'submit': 'submit'
-		},
-		submit: function(e) {
-			e.preventDefault();
-			var newPersonName = $(e.currentTarget).find('input[type=text]').val();
-			var person = new Person({ name: newPersonName });
-			this.collection.add(person);
-		}
-	});
-
-	var addPersonView = new AddPersonView({collection: peopleCollection});
-	var peopleView = new PeopleView({collection: peopleCollection});
-	var artPieceView = new ArtPieceMap({collection: PublicArtCollection});
-	$(document.body).append(artPieceView.render().el);
 })();
