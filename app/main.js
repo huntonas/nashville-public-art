@@ -58,6 +58,7 @@ APP.MapView = Backbone.View.extend({
                         '<p class="type"><strong>Type: </strong>' + artPiece.get('type') + '</p>' +
                         '<p class="medium"><strong>Medium: </strong>' + artPiece.get('medium') + '</p>' +
                         '<p class="description"><strong>Description: </strong>' + artPiece.get('description') + '</p>' +
+                        '<p class="location"><strong>Location: </strong>' + artPiece.get('location') + '</p>' +
                         '</div>';
 
             var infowindow = new google.maps.InfoWindow({
@@ -68,7 +69,7 @@ APP.MapView = Backbone.View.extend({
 
             google.maps.event.addListener(marker, 'click', function() {
                 this.map.setZoom(14);
-                for(i = 0;i<infoWindows.length; i++) { infoWindows[i].close(); };
+                for(i = 0;i<infoWindows.length; i++) { infoWindows[i].close(); }
                 infowindow.open(this.map,marker);
             });
         }, this);
