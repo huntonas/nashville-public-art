@@ -15,7 +15,7 @@ APP.ArtPiece = Backbone.Model.extend({
         medium: 'Medium not provided'
     },
     initialize: function() {
-        
+        this.address();
     },
     address: function() {
         geocoder = new google.maps.Geocoder();
@@ -25,14 +25,14 @@ APP.ArtPiece = Backbone.Model.extend({
         geocoder.geocode({'latLng': latlng}, function(results, status) {
             if (status == google.maps.GeocoderStatus.OK) {
               if (results[1]) {
-                this.set ({formatted_address: results[1].formatted_address});
+                return results[1].formatted_address;
                 console.log(results[1].formatted_address);
               } else {
-                this.set ({formatted_address: 'No address available'});
+                return 'No address available';
                 console.log('In first else');
               }
             } else {
-              this.set ({formatted_address: 'No Address Provided. Google screwed us!'});
+              return 'No Address Provided. Google screwed us!';
               console.log('In second else');
             }
         });
@@ -83,7 +83,7 @@ APP.MapView = Backbone.View.extend({
                         '<p class="medium"><strong>Medium: </strong>' + artPiece.get('medium') + '</p>' +
                         '<p class="description"><strong>Description: </strong>' + artPiece.get('description') + '</p>' +
                         '<p class="location"><strong>Location: </strong>' + artPiece.get('location') + '</p>' +
-                        '<p class="address"><strong>Address: </strong>' + artPiece.address() + '</p>' +
+                        '<p class="address"><strong>Address: </strong>' + artPiece.get('address') + '</p>' +
                         '</div>';
 
             var infowindow = new google.maps.InfoWindow({

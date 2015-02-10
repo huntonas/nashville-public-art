@@ -1,5 +1,7 @@
-html, body, #map { height: 100%; margin: 0; padding: 0;}
+html, body, #map { height: 100%; margin: 0; padding: 0; }
 
 .row-bottom-fixed { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; }
 
 .row-top-fixed { position: fixed; top: 0; left: 0; width: 100%; text-align: center;}
+
+p { font-family: 'Cabin', sans-serif; }
