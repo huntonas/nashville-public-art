@@ -13,6 +13,26 @@ APP.ArtPiece = Backbone.Model.extend({
         latitude: null,
         type: 'Type not provided',
         medium: 'Medium not provided'
+    },
+    initialize: function() {
+        geocoder = new google.maps.Geocoder();
+        console.log('In initialize');
+        var latlng = new google.maps.LatLng(this.get('latitude'), this.get('longitude'));
+
+        geocoder.geocode({'latLng': latlng}, function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+              if (results[1]) {
+                this.address = results[1].formatted_address;
+                console.log(results[1].formatted_address);
+              } else {
+                this.address = 'No Address Provided';
+                console.log('In first else');
+              }
+            } else {
+              this.address = 'No Address Provided. Google Blocked us';
+              console.log('In second else');
+            }
+        });
     }
 });
 
@@ -42,8 +62,9 @@ APP.MapView = Backbone.View.extend({
     },
     render: function () {
         var infoWindows = [];
+    
         this.collection.each(function (artPiece) {
-            
+
             var marker = new google.maps.Marker({
                 map: this.map,
                 position: new google.maps.LatLng(
@@ -59,6 +80,7 @@ APP.MapView = Backbone.View.extend({
                         '<p class="medium"><strong>Medium: </strong>' + artPiece.get('medium') + '</p>' +
                         '<p class="description"><strong>Description: </strong>' + artPiece.get('description') + '</p>' +
                         '<p class="location"><strong>Location: </strong>' + artPiece.get('location') + '</p>' +
+                        '<p class="address"><strong>Address: </strong>' + artPiece.address + '</p>' +
                         '</div>';
 
             var infowindow = new google.maps.InfoWindow({
