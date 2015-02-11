@@ -15,27 +15,10 @@ APP.ArtPiece = Backbone.Model.extend({
         medium: 'Medium not provided'
     },
     initialize: function() {
-        this.address();
+        
     },
     address: function() {
-        geocoder = new google.maps.Geocoder();
-        console.log('In initialize');
-        var latlng = new google.maps.LatLng(this.get('latitude'), this.get('longitude'));
-
-        geocoder.geocode({'latLng': latlng}, function(results, status) {
-            if (status == google.maps.GeocoderStatus.OK) {
-              if (results[1]) {
-                return results[1].formatted_address;
-                console.log(results[1].formatted_address);
-              } else {
-                return 'No address available';
-                console.log('In first else');
-              }
-            } else {
-              return 'No Address Provided. Google screwed us!';
-              console.log('In second else');
-            }
-        });
+        
     }
 });
 
@@ -54,6 +37,37 @@ APP.Map = Backbone.Model.extend({
     }
 });
 
+APP.MarkerInfo = Backbone.Model.extend({
+    default :{ 
+        first_name: 'First Name not provided',
+        last_name: "Last Name not provided",
+        title: 'Title not provided',
+        location: 'Location not provided',
+        description: 'Description not provided',
+        type: 'Type not provided',
+        medium: 'Medium not provided',
+        address: "Not Available"
+    },
+    getAddress: function(lat, lng) {
+
+        geocoder = new google.maps.Geocoder();
+
+        var latlng = new google.maps.LatLng(lat, lng);
+
+        geocoder.geocode({'latLng': latlng}, function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+              if (results[1]) {
+                return results[1].formatted_address;
+              } else {
+                return 'No address available';
+              }
+            } else {
+              return 'No Address Provided. Google screwed us!';
+            }
+        });
+    }
+});
+
 APP.map = new APP.Map();
 
 APP.MapView = Backbone.View.extend({
@@ -65,7 +79,7 @@ APP.MapView = Backbone.View.extend({
     },
     render: function () {
         var infoWindows = [];
-    
+        mapView = this;
         this.collection.each(function (artPiece) {
 
             var marker = new google.maps.Marker({
@@ -74,32 +88,53 @@ APP.MapView = Backbone.View.extend({
                     artPiece.get('latitude'),
                     artPiece.get('longitude')
                 ),
-                title: artPiece.get('title')
+                title: artPiece.get('title'),
+                markerId: artPiece.cid
             });
 
             var info = '<div class="info-window">' +
-                       '<p class="artist"><strong>Artist: </strong>' +  artPiece.get('first_name') + ' '+ artPiece.get('last_name') + '</p>' +
-                        '<p class="type"><strong>Type: </strong>' + artPiece.get('type') + '</p>' +
-                        '<p class="medium"><strong>Medium: </strong>' + artPiece.get('medium') + '</p>' +
-                        '<p class="description"><strong>Description: </strong>' + artPiece.get('description') + '</p>' +
-                        '<p class="location"><strong>Location: </strong>' + artPiece.get('location') + '</p>' +
-                        '<p class="address"><strong>Address: </strong>' + artPiece.get('address') + '</p>' +
-                        '</div>';
+                       '<p class="info-title">' + artPiece.get('title') +
+                       '</div>';
 
             var infowindow = new google.maps.InfoWindow({
-                content: info
+                content: info,
+                infoId: artPiece.cid
             });
 
             infoWindows[infoWindows.length] = infowindow;
 
             google.maps.event.addListener(marker, 'click', function() {
                 this.map.setZoom(14);
+                this.map.setCenter(marker.position);
                 for(i = 0;i<infoWindows.length; i++) { infoWindows[i].close(); }
+                mapView.displayInformation(marker);
                 infowindow.open(this.map,marker);
             });
         }, this);
         $('#map').replaceWith(this.el);
         google.maps.event.addDomListener(window, 'load', initialize);
+    },
+    displayInformation: function(marker) {
+        console.log(this.collection.get(marker.markerId));
+    }
+});
+
+APP.markerInfoBox = Backbone.View.extend({
+    el: 'div',
+
+    initialize: function() {
+        this.listenTo(this.model, 'change', this.render());
+        template = _.template($('#marker-info-box').html()),
+        this.render();
+    },
+
+    render: function() {
+        this.getAddress();
+        this.$el.html(this.template(this.model.toJSON()));
+    },
+
+    getAddress: function() {
+        this.model.set('address',this.model.getAddress(this.model.latitude, this.model.longitude));
     }
 });
 
