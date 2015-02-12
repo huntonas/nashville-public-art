@@ -36,15 +36,16 @@
   <div class="row-bottom-fixed" style="position: fixed; bottom: 0; left: 0; width: 100%;">
     <a href="http://dev.andrewhunton.me">Created by Andrew Hunton</a>
   </div>
-  <script type="text/template" id="marker-info-box">
-    <p class="title"><strong>Title: </strong><%= title =%></p>
-    <p class="title"><strong>Description: </strong><%= description =%></p>
-    <p class="title"><strong>Type: </strong><%= type =%></p>
-    <p class="title"><strong>Medium: </strong><%= medium =%></p>
-    <p class="title"><strong>Artist: </strong><%= first_name =%> <%= last_name =%></p>
-    <p class="title"><strong>Address: </strong><%= address =%></p>
+  <script type="text/x-handlebars-template" id="markerInfoBox">
+    <p class="title"><strong>Title: </strong>{{title}}</p>
+    <p class="title"><strong>Description: </strong>{{description}}</p>
+    <p class="title"><strong>Type: </strong>{{type}}</p>
+    <p class="title"><strong>Medium: </strong>{{medium}}</p>
+    <p class="title"><strong>Artist: </strong>{{first_name}} {{last_name}}</p>
+    <p class="title"><strong>Address: </strong>{{address}}</p>
   </script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
   <script type="text/javascript" src="assets/js/underscore.js"></script>
   <script type="text/javascript" src="assets/js/backbone.js"></script>
   <script type="text/javascript" src="app/main.js"></script>

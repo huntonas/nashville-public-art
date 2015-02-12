@@ -2,6 +2,10 @@
 
 APP = {};
 
+APP.template = function(id) {
+    return _.template($('#' + id).html());
+};
+
 APP.ArtPiece = Backbone.Model.extend({
     defaults: {
         first_name: 'First Name not provided',
@@ -38,7 +42,7 @@ APP.Map = Backbone.Model.extend({
 });
 
 APP.MarkerInfo = Backbone.Model.extend({
-    default :{
+    defaults :{
         first_name: 'First Name not provided',
         last_name: "Last Name not provided",
         title: 'Title not provided',
@@ -119,34 +123,38 @@ APP.MapView = Backbone.View.extend({
     }
 });
 
-APP.MarkerInfoBox = Backbone.View.extend({
-    el: 'div',
+APP.MarkerInfoBoxView = Backbone.View.extend({
+    el: 'info-box',
+
+    template: APP.template('markerInfoBox'),
 
     initialize: function() {
-        this.listenTo(this.model, 'change', this.render());
-        template = _.template($('#marker-info-box').html());
         this.render();
+        this.listenTo(this.model, 'change', this.render());
     },
 
     render: function() {
-        this.getAddress();
+        this.getFullAddress();
+        console.log(this.model.toJSON());
         this.$el.html(this.template(this.model.toJSON()));
     },
 
-    getAddress: function() {
+    getFullAddress: function() {
+
         var address = this.model.getAddress(this.model.get('latitude'), this.model.get('longitude'));
         this.model.set({address: address});
+        return this;
     }
 });
 
-APP.markerInfo = new APP.MarkerInfoBox();
+APP.markerInfo = new APP.MarkerInfo();
 
 APP.mapView = new APP.MapView({
     model: APP.map,
     collection: APP.artPieces
 });
 
-APP.markerInfoBox = new APP.MarkerInfoBox({model: APP.markerInfo});
+APP.markerInfoBox = new APP.MarkerInfoBoxView({model: APP.markerInfo});
 $('#info-box').html(APP.markerInfoBox.el);
 
 })();
