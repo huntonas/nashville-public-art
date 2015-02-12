@@ -15,10 +15,10 @@ APP.ArtPiece = Backbone.Model.extend({
         medium: 'Medium not provided'
     },
     initialize: function() {
-        
+
     },
     address: function() {
-        
+
     }
 });
 
@@ -38,7 +38,7 @@ APP.Map = Backbone.Model.extend({
 });
 
 APP.MarkerInfo = Backbone.Model.extend({
-    default :{ 
+    default :{
         first_name: 'First Name not provided',
         last_name: "Last Name not provided",
         title: 'Title not provided',
@@ -119,12 +119,12 @@ APP.MapView = Backbone.View.extend({
     }
 });
 
-APP.markerInfoBox = Backbone.View.extend({
+APP.MarkerInfoBox = Backbone.View.extend({
     el: 'div',
 
     initialize: function() {
         this.listenTo(this.model, 'change', this.render());
-        template = _.template($('#marker-info-box').html()),
+        template = _.template($('#marker-info-box').html());
         this.render();
     },
 
@@ -134,13 +134,19 @@ APP.markerInfoBox = Backbone.View.extend({
     },
 
     getAddress: function() {
-        this.model.set('address',this.model.getAddress(this.model.latitude, this.model.longitude));
+        var address = this.model.getAddress(this.model.get('latitude'), this.model.get('longitude'));
+        this.model.set({address: address});
     }
 });
+
+APP.markerInfo = new APP.MarkerInfoBox();
 
 APP.mapView = new APP.MapView({
     model: APP.map,
     collection: APP.artPieces
 });
+
+APP.markerInfoBox = new APP.MarkerInfoBox({model: APP.markerInfo});
+$('#info-box').html(APP.markerInfoBox.el);
 
 })();
